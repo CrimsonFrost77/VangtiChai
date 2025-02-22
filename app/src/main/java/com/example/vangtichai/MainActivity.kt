@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialogDefaults.containerColor
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,101 +16,159 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            VangtiChaiApp()
+            MyApp()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyApp() {
+    var amount by remember { mutableStateOf("") }
+
+
+    Column( modifier = Modifier.fillMaxSize()) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .background(Color(0xFF4CAF50)),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = "Vangti Chai",
+                color = Color.White,
+                modifier = Modifier.padding(start = 16.dp),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(90.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AmountDisplay(amount)
+            Spacer(modifier = Modifier.height(16.dp))
+            NumberPad(onDigitClick = { digit ->
+                amount += digit
+            }, onClear = { amount = "" })
+            Spacer(modifier = Modifier.height(16.dp))
+            ChangeBreakdown(amount)
         }
     }
 }
 
 @Composable
-fun VangtiChaiApp() {
-    var amount by remember { mutableStateOf("") }
-    val notes = listOf(500, 100, 50, 20, 10, 5, 2, 1)
-    val changeMap = remember(amount) { calculateChange(amount, notes) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        ChangeDisplay(changeMap, Modifier.weight(1f))
-        NumericKeypad(
-            onDigitPress = { digit -> amount += digit },
-            onClearPress = { amount = "" },
-            Modifier.weight(1f)
-        )
-    }
+fun AmountDisplay(amount: String) {
+    Text(
+        text = if (amount.isEmpty()) "Enter Amount" else "Amount: $amount",
+        fontSize = 32.sp,
+        fontWeight = FontWeight.Bold
+    )
 }
 
 @Composable
-fun NumericKeypad(onDigitPress: (String) -> Unit, onClearPress: () -> Unit, modifier: Modifier) {
-    val digits = listOf(
+fun NumberPad(onDigitClick: (String) -> Unit, onClear: () -> Unit) {
+    val buttons = listOf(
         listOf("1", "2", "3"),
         listOf("4", "5", "6"),
         listOf("7", "8", "9"),
-        listOf("0")
+        listOf("Clear", "0")
     )
 
-    Column(modifier = modifier.padding(16.dp)) {
-        digits.forEach { row ->
+    Column {
+        buttons.forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.Center
             ) {
                 row.forEach { digit ->
-                    Button(
-                        onClick = { onDigitPress(digit) },
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(RoundedCornerShape(4.dp)),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC0C0C0))
-                    ) {
-                        Text(text = digit, fontSize = 20.sp, color = Color.Black)
+                    if (digit == "Clear") {
+                        ClearButton(onClear)
+                    } else {
+                        NumberButton(digit, onDigitClick)
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        Button(
-            onClick = onClearPress,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-        ) {
-            Text(text = "CLEAR", fontSize = 20.sp, color = Color.White)
         }
     }
 }
 
 @Composable
-fun ChangeDisplay(changeMap: Map<Int, Int>, modifier: Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxHeight()
+fun NumberButton(digit: String, onDigitClick: (String) -> Unit) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(80.dp, 60.dp)
+            .background(Color.Gray)
+            .clickable { onDigitClick(digit) }
             .padding(16.dp)
     ) {
-        Text("Change Breakdown", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Text(text = digit, fontSize = 24.sp, color = Color.White)
+    }
+}
+
+@Composable
+fun ClearButton(onClear: () -> Unit) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(160.dp, 60.dp)
+            .background(Color.Gray)
+            .clickable { onClear() }
+            .padding(16.dp)
+    ) {
+        Text(text = "Clear", fontSize = 24.sp, color = Color.White)
+    }
+}
+
+@Composable
+fun ChangeBreakdown(amount: String) {
+    val denominations = listOf(500, 100, 50, 20, 10, 5, 1)
+    val amountInt = amount.toIntOrNull() ?: 0
+    var remainingAmount = amountInt
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Spacer(modifier = Modifier.height(8.dp))
-        changeMap.forEach { (note, count) ->
-            Text(text = "$note: $count", fontSize = 18.sp)
+        denominations.forEach { denomination ->
+            val count = remainingAmount / denomination
+            remainingAmount %= denomination
+            Text(
+                text = "$denomination: $count",
+                fontSize = 28.sp
+            )
         }
     }
 }
 
-fun calculateChange(amount: String, notes: List<Int>): Map<Int, Int> {
-    val result = mutableMapOf<Int, Int>()
-    var remaining = amount.toIntOrNull() ?: 0
-    for (note in notes) {
-        result[note] = remaining / note
-        remaining %= note
-    }
-    notes.forEach { result.putIfAbsent(it, 0) }
-    return result
+@Preview(showBackground = true, name = "Portrait Mode")
+@Composable
+fun PreviewPortrait() {
+    MyApp()
+}
+
+@Preview(showBackground = true, widthDp = 800, heightDp = 1280, name = "Tablet Mode")
+@Composable
+fun PreviewTablet() {
+    MyApp()
+}
+
+@Preview(showBackground = true, widthDp = 731, heightDp = 411, name = "Landscape Mode")
+@Composable
+fun PreviewLandscape() {
+    MyApp()
 }
