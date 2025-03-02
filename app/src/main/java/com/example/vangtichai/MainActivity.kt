@@ -7,8 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.material3.AlertDialogDefaults.containerColor
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,7 +71,7 @@ fun MyApp() {
 @Composable
 fun AmountDisplay(amount: String) {
     Text(
-        text = if (amount.isEmpty()) "Enter Amount" else "Amount: $amount",
+        text = if (amount.isEmpty()) "Enter Amount" else "Taka: $amount",
         fontSize = 32.sp,
         fontWeight = FontWeight.Bold
     )
@@ -111,10 +109,10 @@ fun NumberButton(digit: String, onDigitClick: (String) -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
+            .padding(8.dp) // Added margin around the button
             .size(80.dp, 60.dp)
             .background(Color.Gray)
             .clickable { onDigitClick(digit) }
-            .padding(16.dp)
     ) {
         Text(text = digit, fontSize = 24.sp, color = Color.White)
     }
@@ -125,10 +123,10 @@ fun ClearButton(onClear: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
+            .padding(8.dp) // Added margin around the clear button
             .size(160.dp, 60.dp)
             .background(Color.Gray)
             .clickable { onClear() }
-            .padding(16.dp)
     ) {
         Text(text = "Clear", fontSize = 24.sp, color = Color.White)
     }
