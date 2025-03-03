@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     @Composable
-    fun ScreenLayout(modifier: Modifier = Modifier) {
+    fun ScreenLayout() {
 
         var amount by remember { mutableStateOf("") }
         val configuration = LocalConfiguration.current
