@@ -6,22 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,81 +20,46 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MyApp()
-        }
+        setContent { MyApp() }
     }
 }
 
 @Composable
 fun MyApp() {
-    @Composable
-    fun ScreenLayout() {
-
-        var amount by remember { mutableStateOf("") }
-        val configuration = LocalConfiguration.current
-        val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-        if (isLandscape) {
-            LandscapeLayout(amount, { amount = it })
-        } else {
-            PortraitLayout(amount, { amount = it })
-        }
-    }
-
     ScreenLayout()
+}
 
+@Composable
+fun ScreenLayout() {
+    var amount by rememberSaveable { mutableStateOf("") }
+
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    if (isLandscape) {
+        LandscapeLayout(amount) { amount = it }
+    } else {
+        PortraitLayout(amount) { amount = it }
+    }
 }
 
 @Composable
 fun LandscapeLayout(amount: String, onAmountChange: (String) -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .background(Color(0xFF4CAF50)),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                text = "Vangti Chai",
-                color = Color.White,
-                modifier = Modifier.padding(start = 16.dp).padding(top = 25.dp).padding(bottom = 10.dp),
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Header()
         Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp),
+            modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 AmountDisplay(amount)
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 ChangeBreakdown(amount)
             }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                NumberPad(
-                    onDigitClick = { digit -> onAmountChange(amount + digit) },
-                    onClear = { onAmountChange("") }
-                )
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                NumberPad(onDigitClick = { digit -> onAmountChange(amount + digit) }, onClear = { onAmountChange("") })
             }
         }
     }
@@ -113,35 +67,24 @@ fun LandscapeLayout(amount: String, onAmountChange: (String) -> Unit) {
 
 @Composable
 fun PortraitLayout(amount: String, onAmountChange: (String) -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(116.dp)
-                .background(Color(0xFF4CAF50)),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                text = "Vangti Chai",
-                color = Color.White,
-                modifier = Modifier.padding(start = 16.dp).padding(top = 32.dp).padding(bottom = 32.dp),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Header()
         Spacer(modifier = Modifier.height(16.dp))
         AmountDisplay(amount)
         Spacer(modifier = Modifier.height(16.dp))
-        NumberPad(
-            onDigitClick = { digit -> onAmountChange(amount + digit) },
-            onClear = { onAmountChange("") }
-        )
+        NumberPad(onDigitClick = { digit -> onAmountChange(amount + digit) }, onClear = { onAmountChange("") })
         Spacer(modifier = Modifier.height(16.dp))
         ChangeBreakdown(amount)
+    }
+}
+
+@Composable
+fun Header() {
+    Box(
+        modifier = Modifier.fillMaxWidth().height(80.dp).background(Color(0xFF4CAF93)),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(text = "Vangti Chai", modifier = Modifier.padding(start = 32.dp, top = 16.dp), color = Color.White, fontSize = 30.sp)
     }
 }
 
