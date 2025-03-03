@@ -1,20 +1,36 @@
 package com.example.vangtichai
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,44 +44,109 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyApp() {
-    var amount by remember { mutableStateOf("") }
+    @Composable
+    fun ScreenLayout() {
+        @Composable
+        fun LandscapeLayout() {
+            var amount by remember { mutableStateOf("") }
 
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(Color(0xFF4CAF50)),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        text = "Vangti Chai",
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 16.dp),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AmountDisplay(amount)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ChangeBreakdown(amount)
+                    }
 
-    Column( modifier = Modifier.fillMaxSize()) {
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .background(Color(0xFF4CAF50)),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                text = "Vangti Chai",
-                color = Color.White,
-                modifier = Modifier.padding(start = 16.dp),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        NumberPad(
+                            onDigitClick = { digit -> amount += digit },
+                            onClear = { amount = "" }
+                        )
+                    }
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        @Composable
+        fun PortraitLayout() {
+            var amount by remember { mutableStateOf("") }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(90.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AmountDisplay(amount)
-            Spacer(modifier = Modifier.height(16.dp))
-            NumberPad(onDigitClick = { digit ->
-                amount += digit
-            }, onClear = { amount = "" })
-            Spacer(modifier = Modifier.height(16.dp))
-            ChangeBreakdown(amount)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(Color(0xFF4CAF50)),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        text = "Vangti Chai",
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 16.dp),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                AmountDisplay(amount)
+                Spacer(modifier = Modifier.height(16.dp))
+                NumberPad(
+                    onDigitClick = { digit -> amount += digit },
+                    onClear = { amount = "" }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                ChangeBreakdown(amount)
+            }
+        }
+
+        val configuration = LocalConfiguration.current
+        val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+        if (isLandscape) {
+            LandscapeLayout()
+        } else {
+            PortraitLayout()
         }
     }
+
+
+    ScreenLayout()
+
 }
 
 @Composable
@@ -139,7 +220,10 @@ fun ChangeBreakdown(amount: String) {
     var remainingAmount = amountInt
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 32.dp)
+
     ) {
         Spacer(modifier = Modifier.height(8.dp))
         denominations.forEach { denomination ->
