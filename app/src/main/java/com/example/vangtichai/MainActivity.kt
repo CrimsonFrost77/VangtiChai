@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,15 +41,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyApp() {
     @Composable
-    fun ScreenLayout() {
+    fun ScreenLayout(modifier: Modifier = Modifier) {
         @Composable
-        fun LandscapeLayout() {
-            var amount by remember { mutableStateOf("") }
-
+        fun LandscapeLayout(amount: String, onAmountChange: (String) -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -58,15 +55,15 @@ fun MyApp() {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(60.dp)
                         .background(Color(0xFF4CAF50)),
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Text(
                         text = "Vangti Chai",
                         color = Color.White,
-                        modifier = Modifier.padding(start = 16.dp),
-                        fontSize = 20.sp,
+                        modifier = Modifier.padding(start = 16.dp).padding(top = 25.dp).padding(bottom = 10.dp),
+                        fontSize = 25.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -81,7 +78,7 @@ fun MyApp() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         AmountDisplay(amount)
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         ChangeBreakdown(amount)
                     }
 
@@ -90,8 +87,8 @@ fun MyApp() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         NumberPad(
-                            onDigitClick = { digit -> amount += digit },
-                            onClear = { amount = "" }
+                            onDigitClick = { digit -> onAmountChange(amount + digit) },
+                            onClear = { onAmountChange("") }
                         )
                     }
                 }
@@ -99,9 +96,7 @@ fun MyApp() {
         }
 
         @Composable
-        fun PortraitLayout() {
-            var amount by remember { mutableStateOf("") }
-
+        fun PortraitLayout(amount: String, onAmountChange: (String) -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -110,14 +105,14 @@ fun MyApp() {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(116.dp)
                         .background(Color(0xFF4CAF50)),
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Text(
                         text = "Vangti Chai",
                         color = Color.White,
-                        modifier = Modifier.padding(start = 16.dp),
+                        modifier = Modifier.padding(start = 16.dp).padding(top = 32.dp).padding(bottom = 32.dp),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -126,24 +121,24 @@ fun MyApp() {
                 AmountDisplay(amount)
                 Spacer(modifier = Modifier.height(16.dp))
                 NumberPad(
-                    onDigitClick = { digit -> amount += digit },
-                    onClear = { amount = "" }
+                    onDigitClick = { digit -> onAmountChange(amount + digit) },
+                    onClear = { onAmountChange("") }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 ChangeBreakdown(amount)
             }
         }
 
+        var amount by remember { mutableStateOf("") }
         val configuration = LocalConfiguration.current
         val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
         if (isLandscape) {
-            LandscapeLayout()
+            LandscapeLayout(amount, { amount = it })
         } else {
-            PortraitLayout()
+            PortraitLayout(amount, { amount = it })
         }
     }
-
 
     ScreenLayout()
 
@@ -153,7 +148,7 @@ fun MyApp() {
 fun AmountDisplay(amount: String) {
     Text(
         text = if (amount.isEmpty()) "Enter Amount" else "Taka: $amount",
-        fontSize = 32.sp,
+        fontSize = 30.sp,
         fontWeight = FontWeight.Bold
     )
 }
@@ -231,7 +226,7 @@ fun ChangeBreakdown(amount: String) {
             remainingAmount %= denomination
             Text(
                 text = "$denomination: $count",
-                fontSize = 28.sp
+                fontSize = 34.sp
             )
         }
     }
